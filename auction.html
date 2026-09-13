@@ -1,0 +1,2239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Palouse Premier League — Auction System</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --ink: #0b1220;
+            --ink-soft: #334155;
+            --muted: #64748b;
+            --bg: #eef1f7;
+            --surface: #ffffff;
+            --surface-alt: #f8fafc;
+            --border: #e2e8f0;
+            --border-soft: #edf1f7;
+
+            --navy-950: #05070f;
+            --navy-900: #0b1229;
+            --primary-700: #3730a3;
+            --primary-600: #4338ca;
+            --primary-500: #4f46e5;
+            --primary-100: #eef2ff;
+
+            --accent: #f59e0b;
+            --accent-dark: #b45309;
+
+            --success: #059669;
+            --success-dark: #047857;
+            --success-bg: #ecfdf5;
+            --danger: #dc2626;
+            --danger-dark: #b91c1c;
+            --danger-bg: #fef2f2;
+
+            --radius-lg: 20px;
+            --radius-md: 14px;
+            --radius-sm: 10px;
+
+            --shadow-sm: 0 1px 2px rgba(15, 23, 42, .06);
+            --shadow-md: 0 12px 28px -12px rgba(15, 23, 42, .16);
+            --shadow-lg: 0 30px 60px -20px rgba(15, 23, 42, .3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            min-height: 100vh;
+            color: var(--ink);
+            line-height: 1.6;
+        }
+
+        .header {
+            position: relative;
+            background:
+                radial-gradient(900px 420px at 12% -20%, rgba(245, 158, 11, .18), transparent),
+                radial-gradient(900px 500px at 100% 0%, rgba(79, 70, 229, .35), transparent),
+                linear-gradient(135deg, var(--navy-950) 0%, var(--navy-900) 55%, #1e1b4b 100%);
+            color: white;
+            padding: 34px 40px;
+            overflow: hidden;
+        }
+
+        .header::after {
+            content: '';
+            position: absolute;
+            left: 0; right: 0; bottom: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent), var(--primary-500));
+        }
+
+        .header-inner {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .brand-icon {
+            width: 46px;
+            height: 46px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--accent), #d97706);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            box-shadow: 0 10px 24px -8px rgba(245, 158, 11, .6);
+        }
+
+        .brand h1 {
+            font-size: 1.9rem;
+            font-weight: 900;
+            letter-spacing: -0.02em;
+            line-height: 1.1;
+        }
+
+        .brand .subtitle {
+            font-size: .95rem;
+            color: rgba(255, 255, 255, .65);
+            font-weight: 500;
+            margin-top: 2px;
+        }
+
+        .season-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, .08);
+            border: 1px solid rgba(255, 255, 255, .18);
+            color: rgba(255, 255, 255, .92);
+            font-size: .78rem;
+            font-weight: 700;
+            letter-spacing: .05em;
+            text-transform: uppercase;
+            backdrop-filter: blur(8px);
+        }
+
+        .season-badge svg { color: var(--accent); }
+
+        .main-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0;
+            max-width: 1400px;
+            margin: 0 auto;
+            min-height: calc(100vh - 120px);
+        }
+
+        .left-section, .right-section {
+            padding: 44px;
+        }
+
+        .left-section {
+            border-right: 1px solid var(--border);
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--ink);
+            margin-bottom: 28px;
+            padding-bottom: 14px;
+            border-bottom: 2px solid var(--border-soft);
+            letter-spacing: -0.01em;
+        }
+
+        .section-title svg { color: var(--primary-600); }
+
+        /* Player Input Section */
+        .player-input-section {
+            margin-bottom: 40px;
+        }
+
+        .tabs {
+            display: inline-flex;
+            width: 100%;
+            gap: 4px;
+            background: var(--surface-alt);
+            border: 1px solid var(--border-soft);
+            padding: 5px;
+            border-radius: 13px;
+            margin-bottom: 22px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            background: transparent;
+            border: none;
+            padding: 12px 20px;
+            cursor: pointer;
+            font-weight: 700;
+            color: var(--muted);
+            border-radius: 9px;
+            transition: all 0.2s ease;
+            font-size: .92rem;
+            font-family: inherit;
+        }
+
+        .tab-btn.active {
+            color: var(--primary-700);
+            background: var(--surface);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .tab-btn:hover:not(.active) {
+            color: var(--ink-soft);
+        }
+
+        .input-method {
+            display: none;
+        }
+
+        .input-method.active {
+            display: block;
+        }
+
+        textarea {
+            width: 100%;
+            height: 120px;
+            padding: 16px;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+            font-family: inherit;
+            resize: vertical;
+            transition: border-color 0.2s, box-shadow .2s;
+            color: var(--ink);
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary-500);
+            box-shadow: 0 0 0 4px rgba(79, 70, 229, .12);
+        }
+
+        .file-upload-area {
+            border: 1.5px dashed #cbd5e1;
+            border-radius: var(--radius-md);
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 20px;
+            background: var(--surface-alt);
+        }
+
+        .file-upload-area:hover {
+            border-color: var(--primary-500);
+            background: var(--primary-100);
+        }
+
+        .file-upload-area svg {
+            color: var(--primary-600);
+            margin-bottom: 8px;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .excel-preview {
+            display: none;
+            margin-top: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: .875rem;
+            color: var(--ink-soft);
+        }
+
+        select {
+            width: 100%;
+            padding: 11px 12px;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+            font-family: inherit;
+            background: white;
+            color: var(--ink);
+        }
+
+        .preview-table {
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid var(--border-soft);
+            border-radius: var(--radius-sm);
+        }
+
+        .preview-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .preview-table th, .preview-table td {
+            padding: 10px 14px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-soft);
+            font-size: .9rem;
+        }
+
+        .preview-table th {
+            background: var(--surface-alt);
+            font-weight: 700;
+            color: var(--ink-soft);
+        }
+
+        /* Button Styles */
+        .button-group {
+            display: flex;
+            gap: 14px;
+            margin: 28px 0;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 13px 24px;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-600), var(--primary-500));
+            color: white;
+            box-shadow: 0 10px 22px -10px rgba(67, 56, 202, .7);
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 16px 28px -10px rgba(67, 56, 202, .8);
+        }
+
+        .btn-primary:disabled {
+            background: #cbd5e1;
+            color: #94a3b8;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-secondary {
+            background: var(--surface);
+            color: var(--ink-soft);
+            border: 1.5px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--surface-alt);
+            border-color: #94a3b8;
+            transform: translateY(-1px);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444, var(--danger-dark));
+            color: white;
+            box-shadow: 0 10px 22px -10px rgba(220, 38, 38, .6);
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 16px 28px -10px rgba(220, 38, 38, .7);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success), var(--success-dark));
+            color: white;
+            box-shadow: 0 10px 22px -10px rgba(5, 150, 105, .6);
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 16px 28px -10px rgba(5, 150, 105, .7);
+        }
+
+        .btn-success:disabled {
+            background: rgba(255, 255, 255, .18);
+            color: rgba(255, 255, 255, .5);
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+
+        .btn-small {
+            padding: 9px 16px;
+            font-size: 12.5px;
+        }
+
+        /* Current Auction */
+        .current-auction {
+            position: relative;
+            background: linear-gradient(135deg, var(--navy-900) 0%, var(--primary-700) 65%, var(--primary-500) 100%);
+            color: white;
+            border-radius: var(--radius-lg);
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 40px;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .auction-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: .8rem;
+            font-weight: 800;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            margin-bottom: 14px;
+            padding: 6px 14px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, .1);
+            border: 1px solid rgba(255, 255, 255, .18);
+        }
+
+        .current-player {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 30px;
+            letter-spacing: -0.02em;
+        }
+
+        .bid-section {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, .1);
+            border-radius: var(--radius-md);
+            padding: 30px;
+            margin-top: 30px;
+        }
+
+        .bid-controls {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .team-bid-btn {
+            padding: 18px;
+            border: 2px solid rgba(255, 255, 255, 0.22);
+            background: rgba(255, 255, 255, 0.06);
+            color: white;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            font-size: 1rem;
+            font-family: inherit;
+        }
+
+        .team-bid-btn:hover {
+            background: rgba(255, 255, 255, 0.14);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .team-bid-btn.selected {
+            background: rgba(255, 255, 255, 0.22);
+            border-color: white;
+            box-shadow: 0 8px 25px rgba(255, 255, 255, 0.15);
+        }
+
+        .team-bid-btn:disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .bid-input-group {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .bid-input {
+            flex: 1;
+            padding: 15px 20px;
+            border: 1.5px solid rgba(255, 255, 255, 0.25);
+            border-radius: var(--radius-sm);
+            background: rgba(255, 255, 255, 0.08);
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 700;
+            font-family: inherit;
+        }
+
+        .bid-input::placeholder {
+            color: rgba(255, 255, 255, 0.55);
+            font-weight: 500;
+        }
+
+        .bid-input:focus {
+            outline: none;
+            border-color: white;
+            background: rgba(255, 255, 255, 0.14);
+        }
+
+        /* Teams Section */
+        .teams-section {
+            margin-bottom: 40px;
+        }
+
+        .teams-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 22px;
+            margin-bottom: 30px;
+        }
+
+        .team-card {
+            background: var(--surface);
+            border: 1px solid var(--border-soft);
+            border-radius: var(--radius-md);
+            padding: 24px;
+            transition: all 0.25s ease;
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .team-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--team-color);
+        }
+
+        .team-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .team-card.palouse-eagles { --team-color: #059669; }
+        .team-card.firestorm-united { --team-color: #ea580c; }
+        .team-card.palouse-mavericks { --team-color: #7c3aed; }
+
+        .team-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        .team-title-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .team-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: var(--team-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: .95rem;
+            flex-shrink: 0;
+        }
+
+        .team-name {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: var(--ink);
+            letter-spacing: -0.01em;
+        }
+
+        .team-owner {
+            font-size: .85rem;
+            color: var(--muted);
+            margin-top: 2px;
+        }
+
+        .owner-input {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            margin-top: 10px;
+        }
+
+        .owner-input input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-size: 0.85rem;
+            font-family: inherit;
+        }
+
+        .owner-input button {
+            padding: 8px 12px;
+            background: var(--team-color);
+            color: white;
+            border: none;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-weight: 700;
+            font-size: .8rem;
+            transition: opacity 0.2s;
+        }
+
+        .owner-input button:hover { opacity: .88; }
+
+        .team-budget {
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: var(--team-color);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            padding: 6px 12px;
+            border-radius: var(--radius-sm);
+            background: var(--surface-alt);
+            border: 1.5px solid transparent;
+            white-space: nowrap;
+        }
+
+        .team-budget:hover {
+            background: var(--surface);
+            border-color: var(--team-color);
+        }
+
+        .budget-input {
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: var(--team-color);
+            background: white;
+            border: 1.5px solid var(--team-color);
+            border-radius: var(--radius-sm);
+            padding: 6px 10px;
+            width: 120px;
+            text-align: center;
+            font-family: inherit;
+        }
+
+        .budget-input:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(67, 56, 202, 0.15);
+        }
+
+        .team-players {
+            margin-top: 18px;
+        }
+
+        .team-player {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px;
+            background: var(--surface-alt);
+            border-radius: var(--radius-sm);
+            margin-bottom: 8px;
+            border-left: 3px solid var(--team-color);
+            position: relative;
+        }
+
+        .player-name {
+            font-weight: 600;
+            color: var(--ink-soft);
+            font-size: .92rem;
+        }
+
+        .player-price {
+            font-weight: 700;
+            color: var(--team-color);
+            margin-left: 10px;
+            font-size: .9rem;
+        }
+
+        .player-actions {
+            display: flex;
+            gap: 6px;
+            margin-left: 10px;
+        }
+
+        .edit-player-btn, .remove-player-btn {
+            padding: 5px 10px;
+            font-size: 10px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 700;
+            font-family: inherit;
+        }
+
+        .edit-player-btn {
+            background: var(--primary-100);
+            color: var(--primary-700);
+        }
+
+        .edit-player-btn:hover { background: #e0e7ff; }
+
+        .remove-player-btn {
+            background: var(--danger-bg);
+            color: var(--danger);
+        }
+
+        .remove-player-btn:hover { background: #fee2e2; }
+
+        /* Manual player addition */
+        .manual-add-section {
+            background: var(--surface-alt);
+            border: 1px solid var(--border-soft);
+            border-radius: var(--radius-md);
+            padding: 22px;
+            margin-top: 18px;
+        }
+
+        .manual-add-section h4 {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--ink);
+            margin-bottom: 16px;
+            font-size: 1rem;
+            font-weight: 700;
+        }
+
+        .manual-add-section h4 svg { color: var(--primary-600); }
+
+        .manual-add-form {
+            display: flex;
+            gap: 10px;
+            align-items: end;
+            flex-wrap: wrap;
+        }
+
+        .manual-add-form input, .manual-add-form select {
+            padding: 10px 12px;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-size: 0.9rem;
+            font-family: inherit;
+        }
+
+        .manual-add-form input[type="text"] {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .manual-add-form input[type="number"] {
+            width: 130px;
+        }
+
+        .manual-add-form select {
+            width: 160px;
+        }
+
+        /* Stats */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 18px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: var(--surface);
+            border: 1px solid var(--border-soft);
+            border-radius: var(--radius-md);
+            padding: 22px;
+            text-align: center;
+            transition: all 0.25s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .stat-icon {
+            width: 34px;
+            height: 34px;
+            margin: 0 auto 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            background: var(--primary-100);
+            color: var(--primary-600);
+        }
+
+        .stat-number {
+            font-size: 1.9rem;
+            font-weight: 800;
+            color: var(--ink);
+            margin-bottom: 6px;
+            letter-spacing: -0.01em;
+        }
+
+        .stat-label {
+            color: var(--muted);
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        /* Result Section */
+        .result-section {
+            background: var(--surface-alt);
+            border: 1px solid var(--border-soft);
+            border-radius: var(--radius-md);
+            padding: 40px;
+            text-align: center;
+            min-height: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            margin-bottom: 40px;
+        }
+
+        .result-kicker {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: .74rem;
+            font-weight: 800;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+
+        .empty-state {
+            color: var(--muted);
+            font-style: italic;
+            font-size: 1.05rem;
+        }
+
+        /* Players List */
+        .players-section {
+            border-top: 2px solid var(--border-soft);
+            padding-top: 40px;
+            margin-top: 40px;
+        }
+
+        .players-section h3 {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--ink);
+            margin-bottom: 20px;
+        }
+
+        .players-section h3 svg { color: var(--primary-600); }
+
+        .players-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .player-tag {
+            background: var(--surface);
+            border: 1px solid var(--border-soft);
+            border-radius: var(--radius-sm);
+            padding: 14px;
+            font-size: 0.9rem;
+            text-align: center;
+            font-weight: 600;
+            color: var(--ink-soft);
+            transition: all 0.2s ease;
+        }
+
+        .player-tag:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .player-tag.sold {
+            background: var(--success-bg);
+            border-color: #bbf7d0;
+            color: #166534;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(11, 18, 32, 0.55);
+            backdrop-filter: blur(6px);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 10% auto;
+            padding: 30px;
+            border-radius: var(--radius-lg);
+            width: 90%;
+            max-width: 480px;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 22px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid var(--border-soft);
+        }
+
+        .modal-title {
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: var(--ink);
+        }
+
+        .close {
+            background: var(--surface-alt);
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 8px;
+            font-size: 1.3rem;
+            cursor: pointer;
+            color: var(--muted);
+            line-height: 1;
+        }
+
+        .close:hover {
+            color: var(--danger);
+            background: var(--danger-bg);
+        }
+
+        .modal-form {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .modal-form label {
+            font-size: .85rem;
+            font-weight: 600;
+            color: var(--ink-soft);
+            margin-bottom: -10px;
+        }
+
+        .modal-form input, .modal-form select {
+            padding: 12px;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-size: 1rem;
+            font-family: inherit;
+        }
+
+        .modal-form input:focus, .modal-form select:focus {
+            outline: none;
+            border-color: var(--primary-500);
+            box-shadow: 0 0 0 4px rgba(79, 70, 229, .12);
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 8px;
+        }
+
+        /* Loading Animation */
+        .loading {
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .main-container {
+                grid-template-columns: 1fr;
+            }
+
+            .left-section {
+                border-right: none;
+                border-bottom: 1px solid var(--border);
+            }
+
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header { padding: 26px 22px; }
+
+            .brand h1 {
+                font-size: 1.5rem;
+            }
+
+            .left-section, .right-section {
+                padding: 26px;
+            }
+
+            .bid-controls {
+                grid-template-columns: 1fr;
+            }
+
+            .current-player {
+                font-size: 2rem;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+
+            .button-group {
+                justify-content: center;
+            }
+
+            .manual-add-form {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .manual-add-form input[type="text"],
+            .manual-add-form input[type="number"],
+            .manual-add-form select {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-inner">
+            <div class="brand">
+                <div class="brand-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v6c0 4.5-3 8-7 9-4-1-7-4.5-7-9V6l7-3z"/><path d="M9 12l2 2 4-4"/></svg>
+                </div>
+                <div>
+                    <h1>PALOUSE PREMIER LEAGUE</h1>
+                    <p class="subtitle">Auction Management System</p>
+                </div>
+            </div>
+            <span class="season-badge">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/></svg>
+                2026 Season
+            </span>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <div class="left-section">
+            <h2 class="section-title">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                Player Management
+            </h2>
+
+            <div class="player-input-section">
+                <div class="tabs">
+                    <button id="manualTab" class="tab-btn active">Manual Entry</button>
+                    <button id="excelTab" class="tab-btn">Excel Import</button>
+                </div>
+
+                <!-- Manual Entry Tab -->
+                <div id="manualEntry" class="input-method active">
+                    <p style="color: var(--muted); margin-bottom: 15px; font-size: .9rem;">Enter player names, one per line</p>
+                    <textarea
+                        id="playerInput"
+                        placeholder="Enter player names here, one per line:&#10;Virat Kohli&#10;MS Dhoni&#10;Rohit Sharma&#10;KL Rahul"
+                    ></textarea>
+                </div>
+
+                <!-- Excel Import Tab -->
+                <div id="excelImport" class="input-method">
+                    <p style="color: var(--muted); margin-bottom: 15px; font-size: .9rem;">Upload an Excel file and select the column containing player names</p>
+
+                    <div id="fileUploadArea" class="file-upload-area">
+                        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 18a4 4 0 0 1-1-7.874A5 5 0 0 1 15.9 6.1 4.5 4.5 0 0 1 18 15h-1"/><path d="M12 12v8"/><path d="M9 15l3-3 3 3"/></svg>
+                        <div style="font-size: 1rem; font-weight: 600; color: var(--ink-soft); margin-bottom: 6px;">Click to select an Excel file, or drag and drop</div>
+                        <div style="font-size: 0.85rem; color: var(--muted);">
+                            Supports .xlsx and .xls files
+                        </div>
+                    </div>
+                    <input type="file" id="excelFile" class="file-input" accept=".xlsx,.xls">
+
+                    <div id="excelPreview" class="excel-preview">
+                        <div id="sheetSelector" class="form-group">
+                            <label>Select Sheet</label>
+                            <select id="sheetSelect"></select>
+                        </div>
+
+                        <div id="columnSelector" class="form-group">
+                            <label>Select Column with Player Names</label>
+                            <select id="columnSelect"></select>
+                        </div>
+
+                        <div id="previewTable" class="preview-table"></div>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button id="loadPlayers" class="btn-secondary">Load Players</button>
+                    <button id="selectPlayer" class="btn-primary" disabled>Select Random Player</button>
+                    <button id="resetAll" class="btn-danger">Reset Auction</button>
+                </div>
+            </div>
+
+            <!-- Current Auction Section -->
+            <div class="current-auction" id="currentAuction" style="display: none;">
+                <div class="auction-status">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+                    Now Auctioning
+                </div>
+                <div class="current-player" id="currentPlayerName">-</div>
+
+                <div class="bid-section">
+                    <div class="bid-controls" id="teamBidButtons">
+                        <!-- Team buttons will be generated here -->
+                    </div>
+
+                    <div class="bid-input-group">
+                        <input type="number" id="bidAmount" class="bid-input" placeholder="Enter bid amount (0 or more)" min="0" step="1">
+                        <button id="placeBidBtn" class="btn-success" disabled>Place Bid</button>
+                    </div>
+
+                    <div class="button-group" style="justify-content: center;">
+                        <button id="skipPlayerBtn" class="btn-secondary">Skip Player</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Section -->
+            <div class="stats" id="statsSection" style="display: none;">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    </div>
+                    <div class="stat-number" id="totalPlayers">0</div>
+                    <div class="stat-label">Total Players</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+                    </div>
+                    <div class="stat-number" id="remainingPlayers">0</div>
+                    <div class="stat-label">Remaining</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8.5 12.5l2.5 2.5 5-5"/></svg>
+                    </div>
+                    <div class="stat-number" id="soldPlayers">0</div>
+                    <div class="stat-label">Sold</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="13" rx="2"/><path d="M2 10h20"/><path d="M6 15h4"/></svg>
+                    </div>
+                    <div class="stat-number" id="totalSpent">$0</div>
+                    <div class="stat-label">Total Spent</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="right-section">
+            <h2 class="section-title">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="13" rx="2"/><path d="M2 10h20"/><path d="M6 15h4"/></svg>
+                Teams &amp; Budgets
+            </h2>
+
+            <div class="teams-section">
+                <div class="teams-grid" id="teamsGrid">
+                    <!-- Teams will be generated here -->
+                </div>
+
+                <!-- Manual Player Addition Section -->
+                <div class="manual-add-section">
+                    <h4>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>
+                        Add Player Manually
+                    </h4>
+                    <div class="manual-add-form">
+                        <input type="text" id="manualPlayerName" placeholder="Player name">
+                        <input type="number" id="manualPlayerPrice" placeholder="Price (0 or more)" min="0">
+                        <select id="manualPlayerTeam">
+                            <option value="">Select Team</option>
+                        </select>
+                        <button id="addManualPlayer" class="btn-primary btn-small">Add Player</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Result Section -->
+            <div class="result-section" id="resultSection">
+                <div class="empty-state">
+                    Load players first, then start the auction to begin bidding!
+                </div>
+            </div>
+
+            <!-- Players List -->
+            <div class="players-section" id="playersListSection" style="display: none;">
+                <h3>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+                    Players Status
+                </h3>
+                <div class="players-grid" id="playersGrid"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Player Modal -->
+    <div id="editPlayerModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Edit Player</h3>
+                <button class="close" id="closeEditModal">&times;</button>
+            </div>
+            <form class="modal-form" id="editPlayerForm">
+                <input type="hidden" id="editPlayerTeam">
+                <input type="hidden" id="editPlayerIndex">
+                <label>Player Name</label>
+                <input type="text" id="editPlayerName" required>
+                <label>Price</label>
+                <input type="number" id="editPlayerPrice" min="0" required>
+                <div class="modal-buttons">
+                    <button type="button" class="btn-secondary" id="cancelEdit">Cancel</button>
+                    <button type="submit" class="btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        class AuctionManagementSystem {
+            constructor() {
+                this.allPlayers = [];
+                this.availablePlayers = [];
+                this.soldPlayers = [];
+                this.currentPlayer = null;
+                this.selectedTeam = null;
+                this.currentWorkbook = null;
+
+                this.teams = {
+                    'palouse-eagles': {
+                        name: 'Palouse Eagles',
+                        owner: '',
+                        budget: 10000,
+                        players: [],
+                        color: '#059669'
+                    },
+                    'firestorm-united': {
+                        name: 'Firestorm United',
+                        owner: '',
+                        budget: 10000,
+                        players: [],
+                        color: '#ea580c'
+                    },
+                    'palouse-mavericks': {
+                        name: 'Palouse Mavericks',
+                        owner: '',
+                        budget: 10000,
+                        players: [],
+                        color: '#7c3aed'
+                    }
+                };
+
+                this.initializeElements();
+                this.bindEvents();
+                this.initializeTabs();
+                this.renderTeams();
+                this.populateTeamDropdown();
+            }
+
+            initializeElements() {
+                // Player management elements
+                this.playerInput = document.getElementById('playerInput');
+                this.loadPlayersBtn = document.getElementById('loadPlayers');
+                this.selectPlayerBtn = document.getElementById('selectPlayer');
+                this.resetAllBtn = document.getElementById('resetAll');
+
+                // Tab elements
+                this.manualTab = document.getElementById('manualTab');
+                this.excelTab = document.getElementById('excelTab');
+                this.manualEntry = document.getElementById('manualEntry');
+                this.excelImport = document.getElementById('excelImport');
+
+                // Excel elements
+                this.excelFile = document.getElementById('excelFile');
+                this.fileUploadArea = document.getElementById('fileUploadArea');
+                this.excelPreview = document.getElementById('excelPreview');
+                this.sheetSelect = document.getElementById('sheetSelect');
+                this.columnSelect = document.getElementById('columnSelect');
+                this.previewTable = document.getElementById('previewTable');
+
+                // Auction elements
+                this.currentAuction = document.getElementById('currentAuction');
+                this.currentPlayerName = document.getElementById('currentPlayerName');
+                this.teamBidButtons = document.getElementById('teamBidButtons');
+                this.bidAmount = document.getElementById('bidAmount');
+                this.placeBidBtn = document.getElementById('placeBidBtn');
+                this.skipPlayerBtn = document.getElementById('skipPlayerBtn');
+
+                // Manual player addition elements
+                this.manualPlayerName = document.getElementById('manualPlayerName');
+                this.manualPlayerPrice = document.getElementById('manualPlayerPrice');
+                this.manualPlayerTeam = document.getElementById('manualPlayerTeam');
+                this.addManualPlayerBtn = document.getElementById('addManualPlayer');
+
+                // Display elements
+                this.resultSection = document.getElementById('resultSection');
+                this.statsSection = document.getElementById('statsSection');
+                this.playersListSection = document.getElementById('playersListSection');
+                this.playersGrid = document.getElementById('playersGrid');
+                this.teamsGrid = document.getElementById('teamsGrid');
+
+                // Stat elements
+                this.totalPlayersEl = document.getElementById('totalPlayers');
+                this.remainingPlayersEl = document.getElementById('remainingPlayers');
+                this.soldPlayersEl = document.getElementById('soldPlayers');
+                this.totalSpentEl = document.getElementById('totalSpent');
+
+                // Modal elements
+                this.editPlayerModal = document.getElementById('editPlayerModal');
+                this.editPlayerForm = document.getElementById('editPlayerForm');
+                this.closeEditModal = document.getElementById('closeEditModal');
+                this.cancelEdit = document.getElementById('cancelEdit');
+                this.editPlayerTeam = document.getElementById('editPlayerTeam');
+                this.editPlayerIndex = document.getElementById('editPlayerIndex');
+                this.editPlayerName = document.getElementById('editPlayerName');
+                this.editPlayerPrice = document.getElementById('editPlayerPrice');
+            }
+
+            bindEvents() {
+                // Player management events
+                this.loadPlayersBtn.addEventListener('click', () => this.loadPlayers());
+                this.selectPlayerBtn.addEventListener('click', () => this.selectRandomPlayer());
+                this.resetAllBtn.addEventListener('click', () => this.resetAll());
+
+                // Tab events
+                this.manualTab.addEventListener('click', () => this.switchTab('manual'));
+                this.excelTab.addEventListener('click', () => this.switchTab('excel'));
+
+                // Excel events
+                this.fileUploadArea.addEventListener('click', () => this.excelFile.click());
+                this.fileUploadArea.addEventListener('dragover', (e) => this.handleDragOver(e));
+                this.fileUploadArea.addEventListener('drop', (e) => this.handleDrop(e));
+                this.excelFile.addEventListener('change', (e) => this.handleFileSelect(e));
+                this.sheetSelect.addEventListener('change', () => this.updateColumnSelector());
+                this.columnSelect.addEventListener('change', () => this.updatePreview());
+
+                // Auction events
+                this.placeBidBtn.addEventListener('click', () => this.placeBid());
+                this.skipPlayerBtn.addEventListener('click', () => this.skipPlayer());
+                this.bidAmount.addEventListener('input', () => this.validateBid());
+                this.bidAmount.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') this.placeBid();
+                });
+
+                // Manual player addition events
+                this.addManualPlayerBtn.addEventListener('click', () => this.addManualPlayer());
+                this.manualPlayerName.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') this.addManualPlayer();
+                });
+                this.manualPlayerPrice.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') this.addManualPlayer();
+                });
+
+                // Team bid button events (delegated)
+                this.teamBidButtons.addEventListener('click', (e) => {
+                    if (e.target.closest('.team-bid-btn')) {
+                        const btn = e.target.closest('.team-bid-btn');
+                        this.selectTeamForBid(btn.dataset.team);
+                    }
+                });
+
+                // Team management events (delegated)
+                this.teamsGrid.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('set-owner-btn')) {
+                        this.setTeamOwner(e.target.dataset.team);
+                    }
+                    if (e.target.classList.contains('edit-player-btn')) {
+                        this.editPlayer(e.target.dataset.team, e.target.dataset.index);
+                    }
+                    if (e.target.classList.contains('remove-player-btn')) {
+                        this.removePlayer(e.target.dataset.team, e.target.dataset.index);
+                    }
+                    if (e.target.classList.contains('team-budget')) {
+                        this.editBudget(e.target.dataset.team);
+                    }
+                });
+
+                this.teamsGrid.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter' && e.target.classList.contains('owner-input-field')) {
+                        const team = e.target.dataset.team;
+                        this.setTeamOwner(team);
+                    }
+                    if (e.key === 'Enter' && e.target.classList.contains('budget-input')) {
+                        this.saveBudget(e.target.dataset.team);
+                    }
+                });
+
+                this.teamsGrid.addEventListener('blur', (e) => {
+                    if (e.target.classList.contains('budget-input')) {
+                        this.saveBudget(e.target.dataset.team);
+                    }
+                }, true);
+
+                // Modal events
+                this.closeEditModal.addEventListener('click', () => this.closeModal());
+                this.cancelEdit.addEventListener('click', () => this.closeModal());
+                this.editPlayerForm.addEventListener('submit', (e) => this.savePlayerEdit(e));
+
+                // Close modal when clicking outside
+                this.editPlayerModal.addEventListener('click', (e) => {
+                    if (e.target === this.editPlayerModal) {
+                        this.closeModal();
+                    }
+                });
+            }
+
+            initializeTabs() {
+                this.switchTab('manual');
+            }
+
+            switchTab(tab) {
+                document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+                document.querySelectorAll('.input-method').forEach(method => method.classList.remove('active'));
+
+                if (tab === 'manual') {
+                    this.manualTab.classList.add('active');
+                    this.manualEntry.classList.add('active');
+                } else if (tab === 'excel') {
+                    this.excelTab.classList.add('active');
+                    this.excelImport.classList.add('active');
+                }
+            }
+
+            populateTeamDropdown() {
+                this.manualPlayerTeam.innerHTML = '<option value="">Select Team</option>';
+                Object.entries(this.teams).forEach(([teamId, team]) => {
+                    const option = document.createElement('option');
+                    option.value = teamId;
+                    option.textContent = team.name;
+                    this.manualPlayerTeam.appendChild(option);
+                });
+            }
+
+            // Excel file handling
+            handleDragOver(e) {
+                e.preventDefault();
+                this.fileUploadArea.classList.add('dragover');
+            }
+
+            handleDrop(e) {
+                e.preventDefault();
+                this.fileUploadArea.classList.remove('dragover');
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    this.processExcelFile(files[0]);
+                }
+            }
+
+            handleFileSelect(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    this.processExcelFile(file);
+                }
+            }
+
+            async processExcelFile(file) {
+                try {
+                    const data = await this.readFileAsArrayBuffer(file);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    this.currentWorkbook = workbook;
+
+                    this.populateSheetSelector(workbook);
+                    this.excelPreview.style.display = 'block';
+
+                    if (workbook.SheetNames.length > 0) {
+                        this.sheetSelect.value = workbook.SheetNames[0];
+                        this.updateColumnSelector();
+                    }
+                } catch (error) {
+                    alert('Error reading Excel file: ' + error.message);
+                }
+            }
+
+            readFileAsArrayBuffer(file) {
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = (e) => resolve(e.target.result);
+                    reader.onerror = (e) => reject(e);
+                    reader.readAsArrayBuffer(file);
+                });
+            }
+
+            populateSheetSelector(workbook) {
+                this.sheetSelect.innerHTML = '';
+                workbook.SheetNames.forEach(name => {
+                    const option = document.createElement('option');
+                    option.value = name;
+                    option.textContent = name;
+                    this.sheetSelect.appendChild(option);
+                });
+            }
+
+            updateColumnSelector() {
+                const sheetName = this.sheetSelect.value;
+                const sheet = this.currentWorkbook.Sheets[sheetName];
+                const data = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+
+                if (data.length > 0) {
+                    const headers = data[0];
+                    this.columnSelect.innerHTML = '';
+
+                    headers.forEach((header, index) => {
+                        const option = document.createElement('option');
+                        option.value = index;
+                        option.textContent = `Column ${String.fromCharCode(65 + index)}: ${header || 'Unnamed'}`;
+                        this.columnSelect.appendChild(option);
+                    });
+
+                    this.updatePreview();
+                }
+            }
+
+            updatePreview() {
+                const sheetName = this.sheetSelect.value;
+                const columnIndex = parseInt(this.columnSelect.value);
+                const sheet = this.currentWorkbook.Sheets[sheetName];
+                const data = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+
+                const players = data.slice(1)
+                    .map(row => row[columnIndex])
+                    .filter(name => name && typeof name === 'string' && name.trim())
+                    .slice(0, 10);
+
+                const table = document.createElement('table');
+                const thead = document.createElement('thead');
+                const tbody = document.createElement('tbody');
+
+                const headerRow = document.createElement('tr');
+                const th = document.createElement('th');
+                th.textContent = 'Player Names (Preview - First 10)';
+                headerRow.appendChild(th);
+                thead.appendChild(headerRow);
+
+                players.forEach(player => {
+                    const row = document.createElement('tr');
+                    const td = document.createElement('td');
+                    td.textContent = player;
+                    row.appendChild(td);
+                    tbody.appendChild(row);
+                });
+
+                table.appendChild(thead);
+                table.appendChild(tbody);
+                this.previewTable.innerHTML = '';
+                this.previewTable.appendChild(table);
+            }
+
+            editBudget(teamId) {
+                const team = this.teams[teamId];
+                const budgetElement = document.querySelector(`[data-team="${teamId}"].team-budget`);
+
+                const input = document.createElement('input');
+                input.type = 'number';
+                input.className = 'budget-input';
+                input.value = team.budget;
+                input.min = '0';
+                input.step = '1';
+                input.dataset.team = teamId;
+                input.dataset.originalValue = team.budget;
+
+                budgetElement.parentNode.replaceChild(input, budgetElement);
+                input.focus();
+                input.select();
+            }
+
+            saveBudget(teamId) {
+                const input = document.querySelector(`[data-team="${teamId}"].budget-input`);
+                if (!input) return;
+
+                const newBudget = parseInt(input.value);
+                const originalBudget = parseInt(input.dataset.originalValue);
+
+                if (isNaN(newBudget) || newBudget < 0) {
+                    alert('Please enter a valid budget (0 or greater)!');
+                    input.focus();
+                    return;
+                }
+
+                // Check if team has players and new budget is less than total spent
+                const team = this.teams[teamId];
+                const totalSpent = team.players.reduce((total, player) => total + player.price, 0);
+
+                if (newBudget < totalSpent) {
+                    alert(`Cannot set budget below total spent amount (${totalSpent.toLocaleString()})!`);
+                    input.focus();
+                    return;
+                }
+
+                this.teams[teamId].budget = newBudget;
+                this.renderTeams();
+                this.showNotification(`Budget updated for ${team.name}!`, 'success');
+            }
+
+            renderTeams() {
+                this.teamsGrid.innerHTML = '';
+
+                Object.entries(this.teams).forEach(([teamId, team]) => {
+                    const teamCard = document.createElement('div');
+                    teamCard.className = `team-card ${teamId}`;
+
+                    const initials = team.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+
+                    teamCard.innerHTML = `
+                        <div class="team-header">
+                            <div class="team-title-row">
+                                <div class="team-avatar">${initials}</div>
+                                <div>
+                                    <div class="team-name">${team.name}</div>
+                                    <div class="team-owner">
+                                        ${team.owner ? `Owner: ${team.owner}` : 'No owner set'}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="team-budget" data-team="${teamId}" title="Click to edit budget">${team.budget.toLocaleString()}</div>
+                        </div>
+                        ${!team.owner ? `
+                            <div class="owner-input">
+                                <input type="text" placeholder="Enter owner name" class="owner-input-field" data-team="${teamId}">
+                                <button class="set-owner-btn" data-team="${teamId}">Set</button>
+                            </div>
+                        ` : ''}
+
+                        <div class="team-players">
+                            ${team.players.length === 0 ? '<div style="color: #9ca3af; font-style: italic; font-size: .9rem;">No players yet</div>' : ''}
+                            ${team.players.map((player, index) => `
+                                <div class="team-player">
+                                    <div>
+                                        <span class="player-name">${player.name}</span>
+                                        <span class="player-price">${player.price.toLocaleString()}</span>
+                                    </div>
+                                    <div class="player-actions">
+                                        <button class="edit-player-btn" data-team="${teamId}" data-index="${index}">Edit</button>
+                                        <button class="remove-player-btn" data-team="${teamId}" data-index="${index}">Remove</button>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+
+                    this.teamsGrid.appendChild(teamCard);
+                });
+
+                this.renderTeamBidButtons();
+            }
+
+            renderTeamBidButtons() {
+                if (!this.currentPlayer) return;
+
+                this.teamBidButtons.innerHTML = '';
+
+                Object.entries(this.teams).forEach(([teamId, team]) => {
+                    const button = document.createElement('button');
+                    button.className = 'team-bid-btn';
+                    button.dataset.team = teamId;
+                    button.innerHTML = `
+                        <div style="font-size: 1.1rem; font-weight: 700; margin-bottom: 5px;">${team.name}</div>
+                        <div style="font-size: 0.9rem; opacity: 0.8;">Budget: ${team.budget.toLocaleString()}</div>
+                        ${team.owner ? `<div style="font-size: 0.8rem; opacity: 0.7;">Owner: ${team.owner}</div>` : ''}
+                    `;
+
+                    this.teamBidButtons.appendChild(button);
+                });
+            }
+
+            setTeamOwner(teamId) {
+                const input = document.querySelector(`.owner-input-field[data-team="${teamId}"]`);
+                const ownerName = input.value.trim();
+
+                if (ownerName) {
+                    this.teams[teamId].owner = ownerName;
+                    this.renderTeams();
+                    this.populateTeamDropdown();
+                }
+            }
+
+            selectTeamForBid(teamId) {
+                // Remove selection from all buttons
+                document.querySelectorAll('.team-bid-btn').forEach(btn => {
+                    btn.classList.remove('selected');
+                });
+
+                // Add selection to clicked button
+                const selectedBtn = document.querySelector(`[data-team="${teamId}"]`);
+                if (selectedBtn && !selectedBtn.disabled) {
+                    selectedBtn.classList.add('selected');
+                    this.selectedTeam = teamId;
+                    this.validateBid();
+                }
+            }
+
+            validateBid() {
+                const amount = parseInt(this.bidAmount.value);
+                const canBid = this.selectedTeam &&
+                              amount >= 0 &&
+                              !isNaN(amount) &&
+                              amount <= this.teams[this.selectedTeam].budget;
+
+                this.placeBidBtn.disabled = !canBid;
+
+                // Visual feedback for invalid amount
+                if (this.selectedTeam && amount > this.teams[this.selectedTeam].budget) {
+                    this.bidAmount.style.borderColor = '#dc2626';
+                } else {
+                    this.bidAmount.style.borderColor = 'rgba(255, 255, 255, 0.3)';
+                }
+            }
+
+            addManualPlayer() {
+                const playerName = this.manualPlayerName.value.trim();
+                const price = parseInt(this.manualPlayerPrice.value);
+                const teamId = this.manualPlayerTeam.value;
+
+                if (!playerName || isNaN(price) || !teamId) {
+                    alert('Please fill in all fields!');
+                    return;
+                }
+
+                if (price < 0) {
+                    alert('Price must be 0 or greater!');
+                    return;
+                }
+
+                const team = this.teams[teamId];
+
+                if (price > team.budget) {
+                    alert(`${team.name} doesn't have enough budget! Available: ${team.budget.toLocaleString()}`);
+                    return;
+                }
+
+                // Check if player already exists
+                const existingPlayer = this.soldPlayers.find(p => p.name.toLowerCase() === playerName.toLowerCase());
+                if (existingPlayer) {
+                    alert('This player has already been sold!');
+                    return;
+                }
+
+                // Check if player exists in any team
+                const playerInTeam = Object.values(this.teams).some(t =>
+                    t.players.some(p => p.name.toLowerCase() === playerName.toLowerCase())
+                );
+                if (playerInTeam) {
+                    alert('This player is already in a team!');
+                    return;
+                }
+
+                // Add player to team
+                team.players.push({
+                    name: playerName,
+                    price: price
+                });
+
+                // Deduct from budget
+                team.budget -= price;
+
+                // Remove from available players if exists
+                const availableIndex = this.availablePlayers.findIndex(p => p.toLowerCase() === playerName.toLowerCase());
+                if (availableIndex > -1) {
+                    this.availablePlayers.splice(availableIndex, 1);
+                }
+
+                // Add to sold players
+                this.soldPlayers.push({
+                    name: playerName,
+                    team: team.name,
+                    price: price
+                });
+
+                // Clear form
+                this.manualPlayerName.value = '';
+                this.manualPlayerPrice.value = '';
+                this.manualPlayerTeam.value = '';
+
+                // Update display
+                this.updateDisplay();
+                this.renderTeams();
+                this.updatePlayersList();
+
+                this.showNotification(`${playerName} added to ${team.name} for ${price.toLocaleString()}!`, 'success');
+            }
+
+            editPlayer(teamId, index) {
+                const team = this.teams[teamId];
+                const player = team.players[index];
+
+                this.editPlayerTeam.value = teamId;
+                this.editPlayerIndex.value = index;
+                this.editPlayerName.value = player.name;
+                this.editPlayerPrice.value = player.price;
+
+                this.editPlayerModal.style.display = 'block';
+            }
+
+            savePlayerEdit(e) {
+                e.preventDefault();
+
+                const teamId = this.editPlayerTeam.value;
+                const index = parseInt(this.editPlayerIndex.value);
+                const newName = this.editPlayerName.value.trim();
+                const newPrice = parseInt(this.editPlayerPrice.value);
+
+                if (!newName || isNaN(newPrice) || newPrice < 0) {
+                    alert('Please enter valid name and price (0 or greater)!');
+                    return;
+                }
+
+                const team = this.teams[teamId];
+                const oldPlayer = team.players[index];
+                const priceDifference = newPrice - oldPlayer.price;
+
+                if (priceDifference > team.budget) {
+                    alert(`Not enough budget! Available: ${team.budget.toLocaleString()}`);
+                    return;
+                }
+
+                // Update team budget
+                team.budget -= priceDifference;
+
+                // Update player
+                team.players[index] = {
+                    name: newName,
+                    price: newPrice
+                };
+
+                // Update sold players list
+                const soldPlayerIndex = this.soldPlayers.findIndex(p =>
+                    p.name === oldPlayer.name && p.team === team.name
+                );
+                if (soldPlayerIndex > -1) {
+                    this.soldPlayers[soldPlayerIndex] = {
+                        name: newName,
+                        team: team.name,
+                        price: newPrice
+                    };
+                }
+
+                this.closeModal();
+                this.updateDisplay();
+                this.renderTeams();
+                this.updatePlayersList();
+
+                this.showNotification('Player updated successfully!', 'success');
+            }
+
+            removePlayer(teamId, index) {
+                if (!confirm('Are you sure you want to remove this player?')) {
+                    return;
+                }
+
+                const team = this.teams[teamId];
+                const player = team.players[index];
+
+                // Restore budget
+                team.budget += player.price;
+
+                // Remove from team
+                team.players.splice(index, 1);
+
+                // Remove from sold players
+                const soldIndex = this.soldPlayers.findIndex(p =>
+                    p.name === player.name && p.team === team.name
+                );
+                if (soldIndex > -1) {
+                    this.soldPlayers.splice(soldIndex, 1);
+                }
+
+                // Add back to available players if in original list
+                if (this.allPlayers.includes(player.name) && !this.availablePlayers.includes(player.name)) {
+                    this.availablePlayers.push(player.name);
+                }
+
+                this.updateDisplay();
+                this.renderTeams();
+                this.updatePlayersList();
+
+                this.showNotification(`${player.name} removed from ${team.name}!`, 'success');
+            }
+
+            closeModal() {
+                this.editPlayerModal.style.display = 'none';
+            }
+
+            showNotification(message, type = 'info') {
+                // Simple notification system
+                const notification = document.createElement('div');
+                notification.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    padding: 15px 25px;
+                    border-radius: 10px;
+                    color: white;
+                    font-weight: 600;
+                    font-family: 'Inter', sans-serif;
+                    z-index: 1001;
+                    box-shadow: 0 12px 28px -8px rgba(15, 23, 42, .35);
+                    transition: all 0.3s ease;
+                    ${type === 'success' ? 'background: linear-gradient(135deg, #059669, #047857);' : 'background: linear-gradient(135deg, #4338ca, #4f46e5);'}
+                `;
+                notification.textContent = message;
+
+                document.body.appendChild(notification);
+
+                setTimeout(() => {
+                    notification.style.opacity = '0';
+                    notification.style.transform = 'translateX(100%)';
+                    setTimeout(() => {
+                        document.body.removeChild(notification);
+                    }, 300);
+                }, 3000);
+            }
+
+            loadPlayers() {
+                let players = [];
+
+                const activeTab = document.querySelector('.tab-btn.active');
+
+                if (activeTab.id === 'manualTab') {
+                    const input = this.playerInput.value.trim();
+                    if (!input) {
+                        alert('Please enter at least one player name!');
+                        return;
+                    }
+
+                    players = input.split('\n')
+                        .map(name => name.trim())
+                        .filter(name => name.length > 0);
+
+                } else if (activeTab.id === 'excelTab') {
+                    if (!this.currentWorkbook) {
+                        alert('Please upload an Excel file first!');
+                        return;
+                    }
+
+                    const sheetName = this.sheetSelect.value;
+                    const columnIndex = parseInt(this.columnSelect.value);
+                    const sheet = this.currentWorkbook.Sheets[sheetName];
+                    const data = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+
+                    players = data.slice(1)
+                        .map(row => row[columnIndex])
+                        .filter(name => name && typeof name === 'string' && name.trim())
+                        .map(name => name.trim());
+                }
+
+                if (players.length === 0) {
+                    alert('No valid player names found!');
+                    return;
+                }
+
+                this.allPlayers = [...new Set(players)];
+
+                // Filter out already sold players
+                const soldPlayerNames = this.soldPlayers.map(p => p.name.toLowerCase());
+                this.availablePlayers = this.allPlayers.filter(player =>
+                    !soldPlayerNames.includes(player.toLowerCase())
+                );
+
+                this.selectPlayerBtn.disabled = this.availablePlayers.length === 0;
+                this.updateDisplay();
+                this.showStats();
+                this.showPlayersList();
+
+                this.resultSection.innerHTML = `
+                    <div style="color: #059669; font-weight: 700; font-size: 1.3rem; margin-bottom: 10px;">
+                        ${this.allPlayers.length} players loaded successfully
+                    </div>
+                    <div style="color: var(--muted); font-size: 1.05rem;">
+                        ${this.availablePlayers.length} players available for auction
+                    </div>
+                    ${this.availablePlayers.length > 0 ? `
+                        <div style="color: var(--muted); font-size: .95rem; margin-top: 10px;">
+                            Click "Select Random Player" to start the auction.
+                        </div>
+                    ` : ''}
+                `;
+            }
+
+            selectRandomPlayer() {
+                if (this.availablePlayers.length === 0) {
+                    this.endAuction();
+                    return;
+                }
+
+                this.resultSection.innerHTML = `
+                    <div class="loading">
+                        <div style="font-size: 1.2rem; color: var(--primary-600); font-weight: 700;">Selecting next player…</div>
+                    </div>
+                `;
+
+                setTimeout(() => {
+                    const randomIndex = Math.floor(Math.random() * this.availablePlayers.length);
+                    this.currentPlayer = this.availablePlayers[randomIndex];
+
+                    this.currentPlayerName.textContent = this.currentPlayer;
+                    this.currentAuction.style.display = 'block';
+                    this.renderTeamBidButtons();
+
+                    this.selectedTeam = null;
+                    this.bidAmount.value = '';
+                    this.placeBidBtn.disabled = true;
+
+                    document.querySelectorAll('.team-bid-btn').forEach(btn => {
+                        btn.classList.remove('selected');
+                    });
+
+                    this.resultSection.innerHTML = `
+                        <div class="result-kicker" style="color: var(--primary-600);">Auction in progress</div>
+                        <div style="color: var(--muted); font-size: 1.05rem;">
+                            Select a team and place your bid for ${this.currentPlayer}
+                        </div>
+                    `;
+                }, 800);
+            }
+
+            placeBid() {
+                if (!this.selectedTeam || !this.currentPlayer) return;
+
+                const amount = parseInt(this.bidAmount.value);
+                const team = this.teams[this.selectedTeam];
+
+                if (amount > team.budget) {
+                    alert(`${team.name} doesn't have enough budget! Available: ${team.budget.toLocaleString()}`);
+                    return;
+                }
+
+                // Add player to team
+                team.players.push({
+                    name: this.currentPlayer,
+                    price: amount
+                });
+
+                // Deduct from budget
+                team.budget -= amount;
+
+                // Remove from available players
+                const playerIndex = this.availablePlayers.indexOf(this.currentPlayer);
+                this.availablePlayers.splice(playerIndex, 1);
+
+                // Add to sold players
+                this.soldPlayers.push({
+                    name: this.currentPlayer,
+                    team: team.name,
+                    price: amount
+                });
+
+                this.currentPlayer = null;
+                this.selectedTeam = null;
+                this.currentAuction.style.display = 'none';
+
+                this.updateDisplay();
+                this.renderTeams();
+                this.updatePlayersList();
+
+                this.resultSection.innerHTML = `
+                    <div class="result-kicker" style="color: var(--success);">Sold</div>
+                    <div style="color: var(--ink); font-weight: 800; font-size: 1.5rem; margin-bottom: 10px;">
+                        ${this.soldPlayers[this.soldPlayers.length - 1].name}
+                    </div>
+                    <div style="color: var(--muted); font-size: 1.05rem; margin-bottom: 10px;">
+                        Sold to ${team.name} for ${amount.toLocaleString()}
+                    </div>
+                    <div style="color: var(--muted); font-size: .95rem;">
+                        ${this.availablePlayers.length} players remaining
+                    </div>
+                `;
+
+                if (this.availablePlayers.length === 0) {
+                    this.selectPlayerBtn.disabled = true;
+                }
+            }
+
+            skipPlayer() {
+                if (!this.currentPlayer) return;
+
+                this.currentPlayer = null;
+                this.selectedTeam = null;
+                this.currentAuction.style.display = 'none';
+
+                this.resultSection.innerHTML = `
+                    <div style="color: var(--ink-soft); font-weight: 700; font-size: 1.2rem; margin-bottom: 8px;">
+                        Player Skipped
+                    </div>
+                    <div style="color: var(--muted); font-size: 1.05rem;">
+                        Ready for next player selection
+                    </div>
+                `;
+            }
+
+            endAuction() {
+                this.currentAuction.style.display = 'none';
+                this.selectPlayerBtn.disabled = true;
+
+                const totalSpent = Object.values(this.teams).reduce((total, team) => {
+                    return total + team.players.reduce((teamTotal, player) => teamTotal + player.price, 0);
+                }, 0);
+
+                this.resultSection.innerHTML = `
+                    <div class="result-kicker" style="color: var(--danger);">Auction complete</div>
+                    <div style="color: var(--muted); font-size: 1.1rem; margin-bottom: 14px;">
+                        All players have been sold or processed
+                    </div>
+                    <div style="color: var(--ink); font-weight: 800; font-size: 1.3rem;">
+                        Total Amount Spent: ${totalSpent.toLocaleString()}
+                    </div>
+                `;
+            }
+
+            updateDisplay() {
+                this.totalPlayersEl.textContent = this.allPlayers.length;
+                this.remainingPlayersEl.textContent = this.availablePlayers.length;
+                this.soldPlayersEl.textContent = this.soldPlayers.length;
+
+                const totalSpent = this.soldPlayers.reduce((total, player) => total + player.price, 0);
+                this.totalSpentEl.textContent = `${totalSpent.toLocaleString()}`;
+            }
+
+            showStats() {
+                this.statsSection.style.display = 'grid';
+            }
+
+            showPlayersList() {
+                this.playersListSection.style.display = 'block';
+                this.updatePlayersList();
+            }
+
+            updatePlayersList() {
+                this.playersGrid.innerHTML = '';
+
+                this.allPlayers.forEach(player => {
+                    const playerTag = document.createElement('div');
+                    playerTag.className = 'player-tag';
+                    playerTag.textContent = player;
+
+                    const soldPlayer = this.soldPlayers.find(p => p.name === player);
+                    if (soldPlayer) {
+                        playerTag.classList.add('sold');
+                        playerTag.title = `Sold to ${soldPlayer.team} for ${soldPlayer.price.toLocaleString()}`;
+                    }
+
+                    this.playersGrid.appendChild(playerTag);
+                });
+            }
+
+            resetAll() {
+                if (confirm('Are you sure you want to reset the entire auction? This will clear all players, teams, and transactions.')) {
+                    // Reset players
+                    this.allPlayers = [];
+                    this.availablePlayers = [];
+                    this.soldPlayers = [];
+                    this.currentPlayer = null;
+                    this.selectedTeam = null;
+                    this.currentWorkbook = null;
+
+                    // Reset teams
+                    Object.keys(this.teams).forEach(teamId => {
+                        this.teams[teamId].budget = 10000;
+                        this.teams[teamId].players = [];
+                        this.teams[teamId].owner = '';
+                    });
+
+                    // Reset UI
+                    this.playerInput.value = '';
+                    this.selectPlayerBtn.disabled = true;
+                    this.statsSection.style.display = 'none';
+                    this.playersListSection.style.display = 'none';
+                    this.currentAuction.style.display = 'none';
+                    this.excelPreview.style.display = 'none';
+                    this.excelFile.value = '';
+                    this.manualPlayerName.value = '';
+                    this.manualPlayerPrice.value = '';
+                    this.manualPlayerTeam.value = '';
+
+                    this.renderTeams();
+                    this.populateTeamDropdown();
+
+                    this.resultSection.innerHTML = `
+                        <div class="empty-state">
+                            Load players first, then start the auction to begin bidding!
+                        </div>
+                    `;
+
+                    this.showNotification('Auction reset successfully!', 'success');
+                }
+            }
+        }
+
+        // Initialize the application when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            const script = document.createElement('script');
+            script.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+            script.onload = () => {
+                new AuctionManagementSystem();
+            };
+            script.onerror = () => {
+                console.error('Failed to load SheetJS library');
+                alert('Failed to load Excel processing library. Excel import will not work.');
+                new AuctionManagementSystem();
+            };
+            document.head.appendChild(script);
+        });
+    </script>
+</body>
+</html>
